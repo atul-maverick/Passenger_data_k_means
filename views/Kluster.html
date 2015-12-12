@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+ </head>
+<body style="background:#80BFFF">
+<h3>Hello!! Please choose the below options to generate the cluster:</h3>
+<div ng-app="Load" class="container">
+    <div ng-controller="Ctrl" text-align="center" id="odiv">
+    <p>No Of Clusters:<input type='text' ng-model="data.nocluster" ng-init="data.nocluster='2'" /> </p>
+    <p>Parameter 1:
+    <select ng-model="data.parameter1" ng-init="data.parameter1=''">
+                
+               <option ng-repeat="result in results" value={{result}}>{{result}}</option>        
+    </select> </p>
+    <br>
+    <p>Parameter 2:<select ng-model="data.parameter2" ng-init="data.parameter2=''" >
+                
+               <option ng-repeat="result in results" value={{result}}>{{result}}</option>        
+    </select></p>
+    <button  type="button" class="btn btn-primary" ng-click="loadparams()"> Load paramters </button>
+        <button  type="button" class="btn btn-primary" ng-click="loadresult(data)"> Click to generate result!! </button>
+        </br>
+        </br>
+        <pre ng-show="pshow"> For {{data.nocluster}} clusters </pre>
+        <table ng-show="tshow" class ="table" border="2px solid #770" >
+        <tr><th>Cluster Color</th> <th> No of points</th></tr>
+        <tr data-ng-repeat="(key, value) in colors.clr"><td>{{key}}</td><td>{{value}}</td></tr>
+        </table>
+		</br>
+		<pre data-ng-repeat="(key, value) in colors.dist">{{key}} is {{value}}</pre>
+        <img ng-show="imgshow" ng-src="{{clusterimg}}" alt="Default-ClusterImage" style="width:608px;height:456px;" />
+        
+        
+    </div>
+</div>
+<script>
+    var app = angular.module("Load",[]);
+    app.controller("Ctrl",function($scope,$http) {
+
+        $scope.tabvisible = false;
+        $scope.tshow= false;
+        $scope.pshow= false;
+        $scope.imgshow =false;
+        $scope.rows = [];
+        $scope.results =[];
+        $scope.colors = []
+        $scope.disp =''
+        $scope.serverTime=''
+        $scope.clusterimg = '/clusterimg'; 
+        $scope.loadresult= function(value){
+
+                $scope.clusterimg = ''
+                $scope.imgshow =false;
+                var url= '/clusters';
+                $http.post(url,{"noc":value.nocluster,"param1":value.parameter1,"param2":value.parameter2}).success(function(data)
+		        {
+                     $scope.imgshow =true;
+                     $scope.clusterimg = '/clusterimg'+'?decache='+ Math.random();
+                     $scope.tshow= true;
+                     $scope.colors=data
+                     $scope.pshow= true;
+                     
+                });
+                
+        }
+      
+      
+      $scope.loadparams= function(){
+
+                var url= '/parameters';
+                $http.get(url).success(function(data)
+		        {
+                     $scope.results= data;
+                     
+                });
+                
+        }
+      });
+
+</script>
+</body>
+</html>
